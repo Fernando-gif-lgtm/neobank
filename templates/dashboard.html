@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeaBank - La banque du futur</title>
+    <meta name="description" content="NeaBank - La banque du futur. Votre espace client sécurisé pour consulter solde, envoyer des virements et gérer vos cartes.">
+    <meta name="keywords" content="NeaBank, compte client, espace client, banque digitale, virements, carte bancaire">
+    <meta property="og:title" content="NeaBank - La banque du futur">
+    <meta property="og:description" content="NeaBank - La banque du futur. Votre espace client sécurisé pour consulter solde, envoyer des virements et gérer vos cartes.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NeaBank">
+    <meta name="twitter:card" content="summary_large_image">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07080f;
+            --surface: #0d0f1e;
+            --card: #12152a;
+            --card2: #161929;
+            --border: rgba(99, 102, 241, 0.15);
+            --accent: #6366f1;
+            --accent2: #8b5cf6;
+            --green: #10b981;
+            --red: #ef4444;
+            --cyan: #22d3ee;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --sidebar-w: 260px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+        }
+        h1, h2, h3, h4, .brand { font-family: 'Syne', sans-serif; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 50;
+        }
+        .brand-logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            padding-left: 0.5rem;
+        }
+        .brand-logo span { color: var(--accent); }
+
+        .nav-section { margin-bottom: 2rem; }
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding: 0 0.5rem;
+            margin-bottom: 0.6rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            color: var(--muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            margin-bottom: 0.25rem;
+            font-size: 0.92rem;
+        }
+        .nav-item:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+        }
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(99,102,241,0.1);
+            border-color: rgba(99,102,241,0.2);
+        }
+        .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+        .sidebar-footer {
+            margin-top: auto;
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.9rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 0.8rem;
+        }
+        .avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+        .user-info .name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+        .user-info .email { font-size: 0.72rem; color: var(--muted); }
+
+        .btn-logout {
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 10px;
+            border: 1px solid rgba(239,68,68,0.2);
+            background: rgba(239,68,68,0.05);
+            color: #ef4444;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { background: rgba(239,68,68,0.1); }
+
+        /* ── Main Content ── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 2.5rem;
+            min-height: 100vh;
+        }
+
+        /* Sections */
+        .section { display: none; animation: fadeSection 0.3s ease; }
+        .section.active { display: block; }
+        @keyframes fadeSection {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Home Section ── */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+        .page-subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; }
+
+        .notif-btn {
+            position: relative;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+        .notif-btn:hover { border-color: var(--accent); }
+        .notif-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #2d2469 50%, #1a1040 100%);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
+        }
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -40px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+        }
+        .balance-label { font-size: 0.85rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .balance-amount {
+            font-family: 'Syne', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+        }
+        .balance-amount .cents { font-size: 1.8rem; opacity: 0.7; }
+        .balance-meta {
+            display: flex;
+            gap: 2rem;
+        }
+        .balance-meta-item { }
+        .balance-meta-item .bm-label { font-size: 0.72rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+        .balance-meta-item .bm-value { font-size: 0.88rem; color: rgba(255,255,255,0.8); font-weight: 500; margin-top: 0.2rem; }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            animation: blink 1s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.7; }
+        }
+
+        /* Quick stats */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+        }
+        .stat-card .s-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+        .stat-card .s-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .stat-card .s-icon { font-size: 1.2rem; margin-bottom: 0.5rem; }
+
+        /* Activity feed */
+        .card-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+        .card-box-title { font-size: 1rem; font-weight: 700; }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid var(--border);
+            justify-content: space-between;
+        }
+        .transaction-item:last-child { border-bottom: none; }
+        .tx-icon {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .tx-icon.credit { background: rgba(16,185,129,0.12); }
+        .tx-icon.debit { background: rgba(239,68,68,0.12); }
+        .tx-info { flex: 1; min-width: 0; }
+        .tx-desc { font-size: 0.88rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tx-date { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+        .tx-amount {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .tx-amount.credit { color: var(--green); }
+        .tx-amount.debit { color: var(--red); }
+        .btn-cancel {
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover { background: #dc2626; }
+
+        .notif-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--border);
+            align-items: flex-start;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+            margin-top: 0.35rem;
+        }
+        .notif-text { font-size: 0.86rem; line-height: 1.5; }
+        .notif-time { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── Card Section ── */
+        .bank-card {
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 1.586;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%);
+            border: 1px solid rgba(139,92,246,0.3);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+        .bank-card:hover { transform: perspective(1000px) rotateY(3deg) rotateX(-2deg); }
+        .bank-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
+        }
+        .card-chip {
+            width: 44px; height: 34px;
+            background: linear-gradient(135deg, #d4af37, #f5d77a);
+            border-radius: 6px;
+        }
+        .card-number {
+            font-family: 'Syne', monospace;
+            font-size: 1.15rem;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.9);
+        }
+        .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card-holder-name { font-size: 0.85rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
+        .card-network { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: rgba(255,255,255,0.9); }
+
+        .card-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            max-width: 420px;
+        }
+        .ctrl-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text);
+        }
+        .ctrl-btn:hover { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+        .ctrl-btn.on { border-color: var(--green); background: rgba(16,185,129,0.08); }
+        .ctrl-icon { font-size: 1.4rem; margin-bottom: 0.5rem; display: block; }
+        .ctrl-label { font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700; }
+        .ctrl-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+        .iban-display {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 420px;
+            margin-top: 1rem;
+        }
+        .iban-text { font-family: 'Syne', monospace; font-size: 0.85rem; color: var(--muted); letter-spacing: 1px; }
+        .copy-btn {
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(99,102,241,0.2); }
+
+        /* ── Transfer Section ── */
+        .transfer-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 520px;
+        }
+        .form-group { margin-bottom: 1.4rem; }
+        .form-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: var(--accent);
+            background: rgba(99,102,241,0.05);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        .amount-input-wrap { position: relative; }
+        .amount-currency {
+            position: absolute;
+            left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .form-input.amount-padded { padding-left: 2.2rem; font-size: 1.3rem; font-weight: 700; font-family: 'Syne', sans-serif; }
+
+        .btn-transfer {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.3px;
+        }
+        .btn-transfer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99,102,241,0.35);
+        }
+        .btn-transfer:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .transfer-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .transfer-result.success {
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #34d399;
+            display: block;
+        }
+        .transfer-result.error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+            display: block;
+        }
+
+        /* Notification popup */
+        .notif-popup {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            max-width: 320px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            z-index: 200;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        .notif-popup.show { display: block; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .notif-popup-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .notif-popup-close { cursor: pointer; color: var(--muted); font-size: 1rem; }
+        .notif-popup-list { }
+
+        /* Spinner */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Tags */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.7rem;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .badge-active { background: rgba(16,185,129,0.12); color: var(--green); }
+        .badge-inactive { background: rgba(239,68,68,0.12); color: var(--red); }
+
+        /* Balance counter animation */
+        .counting { transition: opacity 0.3s; }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 1.5rem; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand-logo">Nea<span>Bank</span></div>
+
+        <div class="nav-section">
+            <div class="nav-label">Menu</div>
+            <div class="nav-item active" onclick="showSection('home')" id="nav-home">
+                <span class="nav-icon">🏠</span> Accueil
+            </div>
+            <div class="nav-item" onclick="showSection('cards')" id="nav-cards">
+                <span class="nav-icon">💳</span> Ma Carte
+            </div>
+            <div class="nav-item" onclick="showSection('transfer')" id="nav-transfer">
+                <span class="nav-icon">↗️</span> Virement
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="avatar" id="sidebarAvatar">JD</div>
+                <div class="user-info">
+                    <div class="name" id="sidebarName">Chargement…</div>
+                    <div class="email" id="sidebarEmail">—</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">⬆ Se déconnecter</button>
+        </div>
+    </aside>
+
+    <!-- Notification Popup -->
+    <div class="notif-popup" id="notifPopup">
+        <div class="notif-popup-title">
+            🔔 Notifications
+            <span class="notif-popup-close" onclick="closeNotifPopup()">✕</span>
+        </div>
+        <div class="notif-popup-list" id="notifPopupList"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- ══════════════════════════════ HOME SECTION ══ -->
+        <section class="section active" id="section-home">
+            <div class="page-header">
+                <div>
+                    <div class="page-title" id="welcomeTitle">Bonjour 👋</div>
+                    <div class="page-subtitle" id="welcomeDate">Chargement…</div>
+                </div>
+                <button class="notif-btn" onclick="toggleNotifications()" id="notifBtn">
+                    🔔
+                    <span class="notif-badge" id="notifCount" style="display:none;">0</span>
+                </button>
+            </div>
+
+            <div id="alertBanner" class="alert-banner" style="display:none;"></div>
+
+            <!-- Balance Card -->
+            <div class="balance-card" style="position:relative;z-index:1;">
+                <div>
+                    <div class="balance-label">Solde disponible</div>
+                    <div class="balance-amount" id="balanceDisplay">
+                        <span id="balanceInt">—</span><span class="cents">,<span id="balanceCents">—</span> €</span>
+                    </div>
+                </div>
+                <div class="balance-meta">
+                    <div class="balance-meta-item">
+                        <div class="bm-label">IBAN</div>
+                        <div class="bm-value" id="ibanShort">—</div>
+                    </div>
+                    <div class="balance-meta-item">
+                        <div class="bm-label">Carte</div>
+                        <div class="bm-value" id="cardShort">•••• ——</div>
+                    </div>
+                    <div class="balance-meta-item">
+                        <div class="bm-label">Statut</div>
+                        <div class="bm-value" style="color:#10b981;">● Actif</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="s-icon">📈</div>
+                    <div class="s-label">Reçus</div>
+                    <div class="s-value" id="totalReceived" style="color:var(--green);">0 €</div>
+                </div>
+                <div class="stat-card">
+                    <div class="s-icon">📉</div>
+                    <div class="s-label">Envoyés</div>
+                    <div class="s-value" id="totalSent" style="color:var(--red);">0 €</div>
+                </div>
+                <div class="stat-card">
+                    <div class="s-icon">🔄</div>
+                    <div class="s-label">Transactions</div>
+                    <div class="s-value" id="totalTx">0</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <!-- Transactions -->
+                <div class="card-box">
+                    <div class="card-box-header">
+                        <div class="card-box-title">Historique</div>
+                    </div>
+                    <div id="transactionList">
+                        <div class="empty-state">Aucune transaction</div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="card-box">
+                    <div class="card-box-header">
+                        <div class="card-box-title">Activité récente</div>
+                    </div>
+                    <div id="notificationList">
+                        <div class="empty-state">Aucune activité</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════ CARDS SECTION ══ -->
+        <section class="section" id="section-cards">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Ma Carte</div>
+                    <div class="page-subtitle">Gérez votre carte NeaBank</div>
+                </div>
+            </div>
+
+            <!-- Visual Card -->
+            <div class="bank-card" id="myBankCard">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;">
+                    <div class="card-chip"></div>
+                    <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(255,255,255,0.9);">NeaBank</div>
+                </div>
+                <div class="card-number" id="cardNumberDisplay" style="position:relative;z-index:1;">•••• •••• •••• ••••</div>
+                <div class="card-bottom" style="position:relative;z-index:1;">
+                    <div>
+                        <div class="card-holder-name" id="cardHolderDisplay">— —</div>
+                        <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-top:0.2rem;">Valable jusqu'au 12/28</div>
+                    </div>
+                    <div class="card-network">VISA</div>
+                </div>
+            </div>
+
+            <!-- Card controls -->
+            <div class="card-controls">
+                <button class="ctrl-btn" onclick="toggleCardNumber()" id="showNumberBtn">
+                    <span class="ctrl-icon">👁</span>
+                    <div class="ctrl-label">Voir le numéro</div>
+                    <div class="ctrl-sub">Afficher les détails</div>
+                </button>
+                <button class="ctrl-btn" onclick="toggleVirtualCard()" id="virtualCardBtn">
+                    <span class="ctrl-icon">📱</span>
+                    <div class="ctrl-label" id="virtualCardLabel">Carte virtuelle</div>
+                    <div class="ctrl-sub" id="virtualCardSub">Inactive</div>
+                </button>
+                <button class="ctrl-btn" onclick="orderPhysicalCard()">
+                    <span class="ctrl-icon">📬</span>
+                    <div class="ctrl-label">Commander</div>
+                    <div class="ctrl-sub">Carte physique</div>
+                </button>
+                <button class="ctrl-btn" onclick="showSection('transfer')">
+                    <span class="ctrl-icon">↗️</span>
+                    <div class="ctrl-label">Virement</div>
+                    <div class="ctrl-sub">Envoyer de l'argent</div>
+                </button>
+            </div>
+
+            <!-- IBAN -->
+            <div class="iban-display">
+                <div>
+                    <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.3rem;">Votre IBAN</div>
+                    <div class="iban-text" id="ibanFull">—</div>
+                </div>
+                <button class="copy-btn" onclick="copyIban()">Copier</button>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════ TRANSFER SECTION ══ -->
+        <section class="section" id="section-transfer">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Effectuer un virement</div>
+                    <div class="page-subtitle">Solde disponible : <strong id="transferBalance">— €</strong></div>
+                </div>
+            </div>
+
+            <div class="transfer-card">
+                <div class="form-group">
+                    <label class="form-label">IBAN Destinataire</label>
+                    <input type="text" class="form-input" id="transferIban" placeholder="FR76 3000 6000 0000 0000 0000 000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Montant</label>
+                    <div class="amount-input-wrap">
+                        <span class="amount-currency">€</span>
+                        <input type="number" class="form-input amount-padded" id="transferAmount" placeholder="0.00" min="0.01" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Motif (optionnel)</label>
+                    <input type="text" class="form-input" id="transferDesc" placeholder="Loyer, Restaurant…">
+                </div>
+
+                <button class="btn-transfer" onclick="executeTransfer()" id="transferBtn">
+                    Envoyer le virement →
+                </button>
+                <div class="transfer-result" id="transferResult"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // ── State global ──
+        let userData = null;
+        let cardNumberVisible = false;
+        let refreshInterval = null;
+
+        // ── Section Navigation ──
+        function showSection(name) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('section-' + name).classList.add('active');
+            document.getElementById('nav-' + name).classList.add('active');
+        }
+
+        // ── Date ──
+        function formatDate() {
+            const d = new Date();
+            const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return d.toLocaleDateString('fr-FR', opts);
+        }
+
+        // ── Load User Data ──
+        async function loadData() {
+            try {
+                const res = await fetch('/api/me');
+                if (res.status === 403) {
+                    const d = await res.json();
+                    if (d.suspended) { window.location.href = '/suspended'; return; }
+                }
+                if (!res.ok) { window.location.href = '/'; return; }
+                const data = await res.json();
+                if (!data.success) { window.location.href = '/'; return; }
+
+                userData = data.user;
+                renderDashboard(data);
+            } catch (e) {
+                console.error('Erreur chargement:', e);
+            }
+        }
+
+        function renderDashboard(data) {
+            const u = data.user;
+            const name = `${u.first_name} ${u.last_name}`;
+            const initials = `${u.first_name[0]}${u.last_name[0]}`.toUpperCase();
+
+            // Sidebar
+            document.getElementById('sidebarAvatar').textContent = initials;
+            document.getElementById('sidebarName').textContent = name;
+            document.getElementById('sidebarEmail').textContent = u.email;
+
+            // Welcome
+            document.getElementById('welcomeTitle').textContent = `Bonjour, ${u.first_name} 👋`;
+            document.getElementById('welcomeDate').textContent = formatDate();
+
+            // Balance
+            const bal = u.balance.toFixed(2);
+            const [intPart, centPart] = bal.split('.');
+            document.getElementById('balanceInt').textContent = parseInt(intPart).toLocaleString('fr-FR');
+            document.getElementById('balanceCents').textContent = centPart;
+
+            // Alert
+            const alertEl = document.getElementById('alertBanner');
+            if (u.admin_alert) {
+                alertEl.textContent = u.admin_alert;
+                alertEl.style.display = 'block';
+            } else {
+                alertEl.style.display = 'none';
+            }
+
+            // Transfer balance
+            document.getElementById('transferBalance').textContent = `${u.balance.toLocaleString('fr-FR', {minimumFractionDigits:2})} €`;
+
+            // IBAN / Card
+            const ibanFmt = u.iban.replace(/(.{4})/g, '$1 ').trim();
+            document.getElementById('ibanShort').textContent = u.iban.slice(0, 8) + '…';
+            document.getElementById('ibanFull').textContent = ibanFmt;
+            document.getElementById('ibanFull').dataset.raw = u.iban;
+
+            // Card
+            const cardLast4 = u.card_number ? u.card_number.slice(-4) : '—';
+            if (u.card_approved && u.card_number) {
+                document.getElementById('cardShort').textContent = `•••• ${cardLast4}`;
+                document.getElementById('cardNumberDisplay').textContent = `•••• •••• •••• ${cardLast4}`;
+                document.getElementById('cardHolderDisplay').textContent = name.toUpperCase();
+                document.getElementById('cardNumberDisplay').dataset.full = u.card_number.replace(/(.{4})/g, '$1 ').trim();
+            } else {
+                document.getElementById('cardShort').textContent = 'Carte en attente d\'approbation';
+                document.getElementById('cardNumberDisplay').textContent = '•••• •••• •••• ••••';
+                document.getElementById('cardHolderDisplay').textContent = name.toUpperCase();
+                document.getElementById('cardNumberDisplay').dataset.full = '';
+            }
+
+            // Masquer la section carte si pas approuvée
+            document.getElementById('section-cards').style.display = u.card_approved ? 'block' : 'none';
+            document.getElementById('nav-cards').style.display = u.card_approved ? 'flex' : 'none';
+
+            // Virtual card
+            updateVirtualCardUI(u.card_virtual_active);
+
+            // Stats
+            const txs = data.transactions;
+            const received = txs.filter(t => t.type.toUpperCase() === 'CREDIT').reduce((s, t) => s + t.amount, 0);
+            const sent = txs.filter(t => t.type.toUpperCase() === 'DEBIT').reduce((s, t) => s + t.amount, 0);
+            document.getElementById('totalReceived').textContent = `+${received.toFixed(2)} €`;
+            document.getElementById('totalSent').textContent = `-${sent.toFixed(2)} €`;
+            document.getElementById('totalTx').textContent = txs.length;
+
+            // Transactions
+            renderTransactions(txs);
+
+            // Notifications
+            renderNotifications(data.notifications);
+        }
+
+        function renderTransactions(txs) {
+            const el = document.getElementById('transactionList');
+            if (!txs.length) { el.innerHTML = '<div class="empty-state">Aucune transaction</div>'; return; }
+            el.innerHTML = txs.map(t => {
+                const isCredit = t.type.toUpperCase() === 'CREDIT';
+                const date = new Date(t.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+                const cancelBtn = (t.status === 'En cours' && t.type.toUpperCase() === 'DEBIT') ? `<button class="btn-cancel" onclick="cancelTransaction(${t.id})">Annuler</button>` : '';
+                return `
+                <div class="transaction-item">
+                    <div class="tx-icon ${t.type.toLowerCase()}">${isCredit ? '⬇' : '⬆'}</div>
+                    <div class="tx-info">
+                        <div class="tx-desc">${t.description || (isCredit ? 'Virement reçu' : 'Virement envoyé')}</div>
+                        <div class="tx-date">${date} • ${t.status}</div>
+                    </div>
+                    <div class="tx-amount ${t.type.toLowerCase()}">${isCredit ? '+' : '-'}${t.amount.toFixed(2)} €</div>
+                    ${cancelBtn}
+                </div>`;
+            }).join('');
+        }
+
+        function renderNotifications(notifs) {
+            const el = document.getElementById('notificationList');
+            const count = document.getElementById('notifCount');
+
+            if (!notifs.length) {
+                el.innerHTML = '<div class="empty-state">Aucune notification</div>';
+                count.style.display = 'none';
+                return;
+            }
+
+            count.textContent = notifs.length;
+            count.style.display = 'flex';
+
+            el.innerHTML = notifs.map(n => {
+                const date = new Date(n.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+                return `
+                <div class="notif-item">
+                    <div class="notif-dot"></div>
+                    <div>
+                        <div class="notif-text">${n.message}</div>
+                        <div class="notif-time">${date}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function cancelTransaction(txId) {
+            if (!confirm('Voulez-vous annuler cette transaction ?')) return;
+            const res = await fetch('/api/transaction/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transaction_id: txId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadData(); // Refresh data
+            } else {
+                alert('Erreur lors de l\'annulation.');
+            }
+        }
+
+        // ── Notifications popup ──
+        function toggleNotifications() {
+            const popup = document.getElementById('notifPopup');
+            const isShow = popup.classList.contains('show');
+            if (isShow) {
+                closeNotifPopup();
+            } else {
+                // Populate popup
+                const list = document.getElementById('notifPopupList');
+                list.innerHTML = document.getElementById('notificationList').innerHTML;
+                popup.classList.add('show');
+                // Mark as read
+                fetch('/api/mark-notifications-read', { method: 'POST' });
+                document.getElementById('notifCount').style.display = 'none';
+            }
+        }
+
+        function closeNotifPopup() {
+            document.getElementById('notifPopup').classList.remove('show');
+        }
+
+        // ── Card number toggle ──
+        function toggleCardNumber() {
+            cardNumberVisible = !cardNumberVisible;
+            const el = document.getElementById('cardNumberDisplay');
+            const btn = document.getElementById('showNumberBtn');
+            if (cardNumberVisible) {
+                el.textContent = el.dataset.full;
+                btn.querySelector('.ctrl-label').textContent = 'Masquer';
+                btn.classList.add('on');
+            } else {
+                const last4 = el.dataset.full.slice(-4);
+                el.textContent = `•••• •••• •••• ${last4}`;
+                btn.querySelector('.ctrl-label').textContent = 'Voir le numéro';
+                btn.classList.remove('on');
+            }
+        }
+
+        // ── Virtual card toggle ──
+        async function toggleVirtualCard() {
+            const res = await fetch('/api/toggle-virtual-card', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                updateVirtualCardUI(data.active);
+                userData.card_virtual_active = data.active;
+            }
+        }
+
+        function updateVirtualCardUI(active) {
+            const btn = document.getElementById('virtualCardBtn');
+            const label = document.getElementById('virtualCardLabel');
+            const sub = document.getElementById('virtualCardSub');
+            if (active) {
+                btn.classList.add('on');
+                label.textContent = 'Carte virtuelle';
+                sub.textContent = '✓ Active';
+            } else {
+                btn.classList.remove('on');
+                label.textContent = 'Carte virtuelle';
+                sub.textContent = 'Inactive';
+            }
+        }
+
+        // ── Order physical card (simulation) ──
+        async function orderPhysicalCard() {
+            const res = await fetch('/api/order-physical-card', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                showToast('📬 Demande de carte physique envoyée ! Vous serez notifié de l\'expédition.');
+            } else {
+                showToast('❌ ' + (data.message || 'Erreur.'));
+            }
+        }
+
+        // ── Copy IBAN ──
+        function copyIban() {
+            const raw = document.getElementById('ibanFull').dataset.raw;
+            navigator.clipboard.writeText(raw).then(() => showToast('✓ IBAN copié dans le presse-papier !'));
+        }
+
+        // ── Toast message ──
+        function showToast(msg) {
+            const el = document.getElementById('notifPopup');
+            document.getElementById('notifPopupList').innerHTML = `<div style="font-size:0.88rem;line-height:1.5;">${msg}</div>`;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        // ── Transfer ──
+        async function executeTransfer() {
+            const iban = document.getElementById('transferIban').value.trim().replace(/\s/g, '');
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const desc = document.getElementById('transferDesc').value.trim();
+            const resultEl = document.getElementById('transferResult');
+
+            resultEl.className = 'transfer-result';
+            resultEl.textContent = '';
+
+            if (!iban) { resultEl.className = 'transfer-result error'; resultEl.textContent = 'Veuillez entrer un IBAN.'; return; }
+            if (!amount || amount <= 0) { resultEl.className = 'transfer-result error'; resultEl.textContent = 'Montant invalide.'; return; }
+            if (userData && amount > userData.balance) {
+                resultEl.className = 'transfer-result error';
+                resultEl.textContent = `Solde insuffisant. Disponible : ${userData.balance.toFixed(2)} €`;
+                return;
+            }
+
+            const btn = document.getElementById('transferBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div style="display:flex;align-items:center;gap:8px;justify-content:center"><div class="spinner"></div> Traitement en cours…</div>';
+
+            try {
+                const res = await fetch('/api/transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ iban, amount, description: desc || 'Virement' })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    resultEl.className = 'transfer-result success';
+                    resultEl.textContent = `✓ Virement de ${amount.toFixed(2)} € effectué avec succès !`;
+                    document.getElementById('transferIban').value = '';
+                    document.getElementById('transferAmount').value = '';
+                    document.getElementById('transferDesc').value = '';
+                    // Refresh data
+                    await loadData();
+                } else {
+                    resultEl.className = 'transfer-result error';
+                    resultEl.textContent = data.message || 'Erreur lors du virement.';
+                }
+            } catch {
+                resultEl.className = 'transfer-result error';
+                resultEl.textContent = 'Erreur réseau.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Envoyer le virement →';
+            }
+        }
+
+        // ── Logout ──
+        async function handleLogout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+
+        // ── Auto-refresh disabled for stability ──
+        function startAutoRefresh() {
+            // refreshInterval = setInterval(loadData, 10000);
+        }
+
+        // ── Init ──
+        loadData();
+        startAutoRefresh();
+    </script>
+</body>
+</html>
