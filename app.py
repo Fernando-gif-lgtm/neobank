@@ -22,10 +22,6 @@ DATABASE = 'instance/neobank.db'
 if not os.path.exists('instance'):
     os.makedirs('instance')
 
-# Initialiser la base de données au démarrage
-with app.app_context():
-    init_db()
-
 # ─────────────────────────────────────────────
 # Utilitaires Base de Données
 # ─────────────────────────────────────────────
@@ -129,6 +125,11 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+
+# Initialiser la base de données au démarrage
+with app.app_context():
+    init_db()
 
 
 # ─────────────────────────────────────────────
